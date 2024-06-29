@@ -1,64 +1,102 @@
 import { useState } from 'react';
-import { StyleSheet, Text, View, StatusBar, SafeAreaView, TextInput, Switch } from 'react-native';
+import { StyleSheet, Text, View, StatusBar, SafeAreaView, TextInput, Switch, Button, Image, KeyboardAvoidingView, Platform } from 'react-native';
 
 export default function App() {
-  const [name, setName] = useState("")
-  const [isDarkMood, setIsDarkMood] = useState(false)
+  const [username, setUsername] = useState("")
+  const [password, setPassword] = useState("")
+  const [errors, setErrors] = useState({})
+
+  const validateForm = () => {
+    let errors = {}
+
+    if (!username) errors.username = "Username is reduired"
+    if (!password) errors.password = "Password is reduired"
+
+    setErrors(() => errors)
+
+    return Object.keys(errors).length === 0
+  }
+
+  const onSubmit = () => {
+    if(validateForm()) {
+      console.log("Submitted", username, password);
+      setUsername(() => "")
+      setPassword(() => "")
+      setErrors(() => {})
+    }
+  }
+  
   return (
-    <SafeAreaView style={styles.container}>
-      <TextInput 
-        style={styles.input} 
-        value={name} 
-        onChangeText={setName} 
-        placeholder='email@example.com'
-        autoCorrect={true}
-        autoCapitalize="none"
-        // secureTextEntry
-        // keyboardType="numeric"
-      />
-
-      {/* Multiline TextInput */}
-      <TextInput 
-        style={[styles.input, styles.multilineText]} 
-        placeholder='message'
-        multiline
-      />
-      <Text style={styles.text}>My name is: {name}</Text>
-
-      {/* switch */}
-      <View style={styles.switchContainer}>
-        <Text style={styles.text}>Dark Mode</Text>
-        <Switch value={isDarkMood} onValueChange={() => setIsDarkMood(change => !change)}
-          trackColor={{false: "#767577", true: "lightblue"}} thumbColor={"#f4f3f4"}/>
+    <KeyboardAvoidingView 
+      behavior='padding' 
+      keyboardVerticalOffset={100}  
+      style={styles.container}
+    >
+      <View style={styles.form}>
+        <Image source={require("./assets/adaptive-icon.png")} style={styles.image}/>
+        <Text style={styles.lable}>Username</Text>
+        <TextInput 
+          style={styles.input} 
+          placeholder='Enter your username' 
+          value={username}
+          onChangeText={setUsername}
+        />
+        {errors?.username && <Text style={styles.errorText}>{errors?.username}</Text>}
+        <Text style={styles.lable}>Password</Text>
+        <TextInput 
+          style={styles.input} 
+          placeholder='Enter your password' 
+          value={password} 
+          secureTextEntry
+          onChangeText={setPassword}
+        />
+        {errors?.password && <Text style={styles.errorText}>{errors?.password}</Text>}
+        <Button title='Login' onPress={() => {onSubmit()}} />
       </View>
-    </SafeAreaView>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    paddingTop: StatusBar.currentHeight
+    justifyContent: "center",
+    paddingHorizontal: 20,
+    backgroundColor: "#f5f5f5"
+  },
+  form: {
+    backgroundColor: "white",
+    padding: 20,
+    borderRadius: 10,
+    shadowOffset: {
+      width: 0,
+      height: 2
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5
+  },
+  lable: {
+    fontSize: 16,
+    marginBottom: 5,
+    fontWeight: "bold"
   },
   input: {
     height: 40,
-    margin: 12,
+    borderColor: "#ddd",
+    borderWidth: 1,
+    marginBottom: 15,
     padding: 10,
-    borderWidth: 1
+    borderRadius: 5
   },
-  text: {
-    fontSize: 30,
-    padding: 10
+  image: {
+    width: 200,
+    height: 400,
+    alignSelf: "center",
+    marginBottom: 50,
   },
-  multilineText: {
-    minHeight: 100,
-    textAlignVertical: "top"
-  }, 
-  switchContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 10
+  errorText: {
+    color: "red",
+    marginBottom: 10
   }
 });
